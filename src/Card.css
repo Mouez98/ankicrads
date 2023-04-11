@@ -1,0 +1,70 @@
+.card {
+    background-color: #fff;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .card-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .card-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .easy-button {
+    background-color: #5cb85c;
+    border: 2px solid #4cae4c;
+    color: #fff;
+  }
+  
+  .normal-button {
+    background-color: #f0ad4e;
+    border: 2px solid #eea236;
+    color: #fff;
+  }
+  
+  .hard-button {
+    background-color: #d9534f;
+    border: 2px solid #d43f3a;
+    color: #fff;
+  }
+  
+  .again-button {
+    background-color: #337ab7;
+    border: 2px solid #2e6da4;
+    color: #fff;
+  }
+  
+  .easy-button,
+  .normal-button,
+  .hard-button,
+  .again-button {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .easy-button:hover,
+  .normal-button:hover,
+  .hard-button:hover,
+  .again-button:hover {
+    opacity: 0.8;
+  }
+  
+  .easy-button:focus,
+  .normal-button:focus,
+  .hard-button:focus,
+  .again-button:focus {
+    outline: none;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+  }
+  

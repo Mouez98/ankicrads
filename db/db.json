@@ -1,0 +1,33 @@
+{
+    "cards": [{
+            "id": 1,
+            "question": "What is the capital of France?",
+            "answer": "Paris",
+            "lastReviewed": null,
+            "interval": 60000,
+            "easeFactor": 2.5,
+            "difficultyLevel": 0,
+            "duration": 100
+        },
+        {
+            "id": 2,
+            "question": "What year did Christopher Columbus discover America?",
+            "answer": "1492",
+            "lastReviewed": null,
+            "interval": 60000,
+            "easeFactor": 2.5,
+            "difficultyLevel": 0,
+            "duration": 120
+        },
+        {
+            "id": 3,
+            "question": "What is the largest planet in the solar system?",
+            "answer": "Jupiter",
+            "lastReviewed": null,
+            "interval": 60000,
+            "easeFactor": 2.5,
+            "difficultyLevel": 0,
+            "duration": 160
+        }
+    ]
+}
