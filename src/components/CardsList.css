@@ -1,0 +1,28 @@
+.question-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+}
+
+.question-item {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.question-item h3 {
+  margin-top: 0;
+}
+
+.question-item div {
+  margin-bottom: 5px;
+}
+
+strong {
+  color: red;
+}

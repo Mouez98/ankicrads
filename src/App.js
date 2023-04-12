@@ -1,176 +1,88 @@
-import { useEffect, useState } from "react";
-import stringSimilarity from "string-similarity";
+import { useState } from "react";
 
 import "./App.css";
-import Card from "./Card";
+import Card from "./components/Card";
+import CardsList from "./components/CardsList";
+import { getLargestTimeUnit, updateCard } from "./utils/helpers";
+import { isAfter } from "date-fns";
 
-const fetchCards = async () => {
-  const res = await fetch("http://localhost:3500/cards");
-  const data = await res.json();
-  return data;
-};
-
-function formatInterval(intervalInMinutes) {
-  const days = Math.floor(intervalInMinutes / 1440); // 1440 minutes in a day
-  const hours = Math.floor((intervalInMinutes % 1440) / 60);
-  const minutes = intervalInMinutes % 60;
-
-  let formattedString = "";
-
-  if (days > 0) {
-    formattedString += `${days} day${days === 1 ? "" : "s"} `;
-  }
-
-  if (hours > 0) {
-    formattedString += `${hours} hour${hours === 1 ? "" : "s"} `;
-  }
-
-  if (minutes > 0) {
-    formattedString += `${minutes} minute${minutes === 1 ? "" : "s"}`;
-  }
-
-  return formattedString.trim(); // remove trailing space
-}
-
-function learningCard(card, recallSpeed) {
-  // Update the difficulty level based on recall speed
-  card.difficultyLevel = Math.floor(
-    card.difficultyLevel +
-      0.1 -
-      (5 - recallSpeed) * (0.08 + (5 - recallSpeed) * 0.02)
-  );
-
-  // Calculate the new interval using the simplified formula
-  const newInterval = card.interval >= 600000 ? 86400000 : card.interval * 10;
-  card.interval = newInterval;
-  return card;
-}
-
-function reviewingCard(card, recallSpeed, userResponseCorrectness) {
-  card.difficultyLevel =
-    card.difficultyLevel +
-    0.1 -
-    (5 - recallSpeed) * (0.08 + (5 - recallSpeed) * 0.02);
-
-  card.easeFactor = calculateEasinessFactor(
-    card.easeFactor,
-    userResponseCorrectness * 0.01
-  );
-
-  // Calculate the new interval using the simplified formula
-  card.interval = card.interval * card.easeFactor;
-  return card;
-}
-
-function calculateEasinessFactor(previousEF, percentCorrect) {
-  let updatedEF;
-
-  if (percentCorrect === 1) {
-    updatedEF = previousEF + 0.1 + 0.1;
-  } else if (percentCorrect >= 0.75) {
-    updatedEF = previousEF + 0.1;
-  } else if (percentCorrect >= 0.5) {
-    updatedEF = previousEF;
-  } else {
-    updatedEF = previousEF - 0.15;
-  }
-
-  if (updatedEF > 2.5) {
-    updatedEF = 2.5;
-  } else if (updatedEF < 1.3) {
-    updatedEF = 1.3;
-  }
-
-  return updatedEF;
-}
+const CARDS = [
+  {
+    id: 1,
+    question: "What is the capital of France?",
+    answer: "Paris",
+    lastReviewed: null,
+    interval: 86400000,
+    easeFactor: 2.5,
+  },
+  // {
+  //   id: 2,
+  //   question: "What year did Christopher Columbus discover America?",
+  //   answer: "1492",
+  //   lastReviewed: null,
+  //   interval: 86400000,
+  //   easeFactor: 2.5,
+  // },
+  // {
+  //   id: 3,
+  //   question: "What is the largest planet in the solar system?",
+  //   answer: "Jupiter",
+  //   lastReviewed: null,
+  //   interval: 86400000,
+  //   easeFactor: 2.5,
+  // },
+];
 
 function App() {
-  const [cards, setCards] = useState([]);
-  const [error, setError] = useState(null);
-    const [currentIndex, setCurrentIndex] = useState(0)
+  const [cards, setCards] = useState(CARDS);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const getPercentageOfCorrectness = (answer, userAnswer) => {
-    const normalizedUserAnswer = userAnswer.trim().toLowerCase();
-    const normalizedAnswer = answer.trim().toLowerCase();
-
-    const similarity = stringSimilarity.compareTwoStrings(
-      normalizedUserAnswer,
-      normalizedAnswer
-    );
-    const percentage = Math.floor(similarity * 100);
-
-    return percentage;
-  };
-
-  const handleReviewCard = async (card) => {
-    let promptTime = Math.floor(Date.now() / 1000);
-    const response = prompt(card.question);
-    let recallSpeed;
-    setTimeout(() => {
-      const submitTime = Math.floor(Date.now() / 1000);
-      recallSpeed = (submitTime - promptTime) / card.duration / 5;
-      console.log(`Duration: ${recallSpeed}s`);
-    }, 0);
-
-    if (response) {
-      const userResponseCorrectness = Math.floor(
-        getPercentageOfCorrectness(card.answer, response)
-      );
-
-      console.log(userResponseCorrectness);
-      card.lastReviewed = Date.now();
-      let recallSpeed = userResponseCorrectness / 20;
-      if (card.interval < 86400000) {
-        learningCard(card, recallSpeed);
-      } else {
-        reviewingCard(card, recallSpeed, userResponseCorrectness);
-      }
-      const findIndex = cards.findIndex((c) => card.id === c.id);
-      const cardsCopy = [...cards];
-      cardsCopy[findIndex] = card;
-      setCards(cardsCopy);
-      console.log(card);
-    } else {
+  const filteredCards = cards?.filter((card) =>
+    isAfter(Date.now() + card.interval, Date.now())
+  );
+  console.log(getLargestTimeUnit(Date.now() + 86400000 - Date.now()));
+  const goToNextCard = () => {
+    if (currentIndex === cards.length - 1) {
+      console.log("No more cards!");
+      setCurrentIndex(0);
+      return;
     }
+    setCurrentIndex((prevIndex) => prevIndex + 1);
   };
 
-  useEffect(() => {
-    fetchCards()
-      .then((res) => setCards(res))
-      .catch((err) => setError(err.message));
-  }, []);
-  if (error) return <p>Something went wrong</p>;
+  const handleUpdateCard = (response) => {
+    const card = cards[currentIndex];
+    const { ease, interval } = updateCard(
+      card.interval,
+      card.easeFactor,
+      response
+    );
+    const findIndex = cards.findIndex((c) => c.id === card.id);
+    const cardCopy = {
+      ...card,
+      easeFactor: ease,
+      interval,
+      lastReviewed: Date.now(),
+    };
+    setCards((prev) => {
+      const prevCopy = [...prev];
+      prevCopy[findIndex] = cardCopy;
+      return prevCopy;
+    });
+    console.log(cardCopy);
+    goToNextCard();
+  };
+
   return (
     <div className="App">
-      {cards.length > 0
-        ? cards.map((card) => (<Card key={card.id} title={card.question}/>
-            // <div
-            //   key={card.question}
-            //   className="card"
-            //   onClick={() => handleReviewCard(card)}
-            // >
-            //   <h3>{card.question}</h3>
-            //   <p>
-            //     Last reviewed: <br />
-            //     <span style={{ color: "red" }}>
-            //       {card.lastReviewed !== null
-            //         ? new Date(card.lastReviewed).toISOString()
-            //         : "Has not reviewed yet"}
-            //     </span>
-            //   </p>
-            //   <p>
-            //     Interval:
-            //     <span style={{ color: "red" }}>
-            //       {formatInterval(card.interval / 1000 / 60)}
-            //     </span>
-            //   </p>
-            //   <p>
-            //     Ease factor:
-            //     <span style={{ color: "red" }}>{card.easeFactor}</span> ease
-            //   </p>
-            // </div>
-          ))
-        : null}
+      {filteredCards.length > 0 ? (
+        <Card
+          question={filteredCards[currentIndex].question}
+          answer={filteredCards[currentIndex].answer}
+          onClick={handleUpdateCard}
+        />
+      ) : null}
+      <CardsList cards={cards} />
     </div>
   );
 }

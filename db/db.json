@@ -5,19 +5,15 @@
             "answer": "Paris",
             "lastReviewed": null,
             "interval": 60000,
-            "easeFactor": 2.5,
-            "difficultyLevel": 0,
-            "duration": 100
+            "easeFactor": 2.5
         },
         {
             "id": 2,
             "question": "What year did Christopher Columbus discover America?",
             "answer": "1492",
             "lastReviewed": null,
-            "interval": 60000,
-            "easeFactor": 2.5,
-            "difficultyLevel": 0,
-            "duration": 120
+            "interval": 600000,
+            "easeFactor": 2.5
         },
         {
             "id": 3,
@@ -25,9 +21,7 @@
             "answer": "Jupiter",
             "lastReviewed": null,
             "interval": 60000,
-            "easeFactor": 2.5,
-            "difficultyLevel": 0,
-            "duration": 160
+            "easeFactor": 2.5
         }
     ]
 }
